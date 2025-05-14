@@ -40,8 +40,8 @@
           <a href="/" class="hover:text-blue-200 transition">Accueil</a>
           {% if user.is_authenticated %}
           <a href="{% url 'users:dashboard' %}" class="hover:text-blue-200 transition">Tableau de bord</a>
-          <a href="#" class="hover:text-blue-200 transition">Mes jeux</a>
-          <a href="#" class="hover:text-blue-200 transition">Favoris</a>
+          <a href="{% url 'games:my_games' %}" class="hover:text-blue-200 transition">Mes jeux</a>
+          <a href="{% url 'games:favorites' %}" class="hover:text-blue-200 transition">Favoris</a>
           <a href="{% url 'users:profile' %}" class="hover:text-blue-200 transition">Profil</a>
           <a href="{% url 'users:logout' %}" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md transition">Déconnexion</a>
           {% else %}

@@ -1,0 +1,142 @@
+{% extends 'base.html' %} {% block title %}{{ game.title }} | GameForge{% endblock %} {% block content %}
+<div class="max-w-4xl mx-auto">
+  <div class="mb-6 flex items-center">
+    <a href="{% url 'games:game_list' %}" class="text-blue-600 hover:underline inline-flex items-center mr-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+        <path
+          fill-rule="evenodd"
+          d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      Retour
+    </a>
+    {% if game.creator == request.user %}
+    <span class="ml-auto text-sm text-gray-500">
+      <span class="inline-block px-2 py-1 {% if game.is_public %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %} rounded">
+        {% if game.is_public %}Public{% else %}Privé{% endif %}
+      </span>
+    </span>
+    {% endif %}
+  </div>
+
+  <div class="bg-white shadow-md rounded-lg overflow-hidden">
+    <div class="p-6">
+      <h1 class="text-3xl font-bold mb-2">{{ game.title }}</h1>
+
+      <div class="flex items-center gap-2 mb-4">
+        <div class="flex flex-wrap gap-2">
+          <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"> {{ game.get_genre_display }} </span>
+          <span class="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium"> {{ game.get_ambiance_display }} </span>
+          {% for keyword in game.keywords.split(',') %} {% if keyword|trim %}
+          <span class="inline-block px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm"> {{ keyword|trim }} </span>
+          {% endif %} {% endfor %}
+        </div>
+
+        <!-- Bouton Favoris -->
+        {% if user.is_authenticated and user != game.creator %}
+        <a
+          href="{% url 'games:toggle_favorite' slug=game.slug %}"
+          class="ml-auto inline-flex items-center p-2 {% if user in game.favorited_by.all %}text-red-500{% else %}text-gray-400 hover:text-red-500{% endif %} transition"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+            <path
+              fill-rule="evenodd"
+              d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </a>
+        {% endif %}
+      </div>
+
+      <div class="mb-6">
+        <p class="text-gray-700">{{ game.description }}</p>
+      </div>
+
+      {% if game.cultural_references %}
+      <div class="mb-6">
+        <h2 class="text-xl font-semibold mb-2">Références culturelles</h2>
+        <p class="text-gray-700">{{ game.cultural_references }}</p>
+      </div>
+      {% endif %}
+
+      <div class="text-sm text-gray-500 mb-4">
+        <p>Créé par {{ game.creator.username }} le {{ game.created_at|date:"d/m/Y à H:i" }}</p>
+        {% if game.updated_at != game.created_at %}
+        <p>Dernière modification le {{ game.updated_at|date:"d/m/Y à H:i" }}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if game.creator == request.user %}
+    <div class="border-t border-gray-200 px-6 py-4 bg-gray-50 flex justify-end">
+      <a href="#" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        Générer du contenu
+      </a>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="mt-8">
+    <h2 class="text-2xl font-bold mb-4">Contenu du jeu</h2>
+
+    {% if game.detail.universe_description or game.detail.plot or game.detail.act1 or game.characters.exists or game.locations.exists %}
+    <!-- Onglets pour naviguer entre les différentes sections -->
+    <div class="border-b border-gray-200 mb-4">
+      <nav class="flex space-x-8" aria-label="Tabs">
+        <button class="py-4 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600">Univers & Histoire</button>
+        <button class="py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">Personnages</button>
+        <button class="py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">Lieux</button>
+      </nav>
+    </div>
+
+    <!-- Contenu de l'univers et de l'histoire -->
+    <div class="bg-white shadow-md rounded-lg p-6">
+      {% if game.detail.universe_description %}
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-2">L'univers du jeu</h3>
+        <div class="prose max-w-none">{{ game.detail.universe_description|linebreaks }}</div>
+      </div>
+      {% endif %} {% if game.detail.plot %}
+      <div class="mb-6">
+        <h3 class="text-xl font-semibold mb-2">Intrigue principale</h3>
+        <div class="prose max-w-none">{{ game.detail.plot|linebreaks }}</div>
+      </div>
+      {% endif %} {% if game.detail.act1 or game.detail.act2 or game.detail.act3 %}
+      <div>
+        <h3 class="text-xl font-semibold mb-2">Structure en trois actes</h3>
+
+        {% if game.detail.act1 %}
+        <div class="mb-4">
+          <h4 class="font-semibold text-lg">Acte I</h4>
+          <div class="prose max-w-none">{{ game.detail.act1|linebreaks }}</div>
+        </div>
+        {% endif %} {% if game.detail.act2 %}
+        <div class="mb-4">
+          <h4 class="font-semibold text-lg">Acte II</h4>
+          <div class="prose max-w-none">{{ game.detail.act2|linebreaks }}</div>
+        </div>
+        {% endif %} {% if game.detail.act3 %}
+        <div>
+          <h4 class="font-semibold text-lg">Acte III</h4>
+          <div class="prose max-w-none">{{ game.detail.act3|linebreaks }}</div>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+    {% else %} {% if game.creator == request.user %}
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+      <h3 class="text-lg font-semibold mb-2 text-yellow-800">Contenu non généré</h3>
+      <p class="text-yellow-700 mb-4">Vous n'avez pas encore généré de contenu pour ce jeu.</p>
+      <a href="#" class="inline-block px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700"> Générer du contenu maintenant </a>
+    </div>
+    {% else %}
+    <div class="bg-gray-100 border border-gray-200 rounded-lg p-6 text-center">
+      <p class="text-gray-600">Aucun contenu n'a encore été généré pour ce jeu.</p>
+    </div>
+    {% endif %} {% endif %}
+  </div>
+</div>
+{% endblock %}
