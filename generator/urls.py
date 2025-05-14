@@ -4,8 +4,7 @@ from . import views
 app_name = 'generator'
 
 urlpatterns = [
-    # Ces routes seront implémentées plus tard
-    # path('generate/', views.generate, name='generate'),
-    # path('generate/random/', views.generate_random, name='generate_random'),
-    # path('status/<int:request_id>/', views.generation_status, name='generation_status'),
+    path('game/<int:game_id>/generate/', views.generate_game_content, name='generate_game_content'),
+    path('game/<int:game_id>/image/<str:type>/', views.generate_image, name='generate_image'),
+    path('status/<int:request_id>/', views.generation_status, name='generation_status'),
 ]
