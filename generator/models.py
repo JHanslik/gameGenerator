@@ -18,6 +18,7 @@ class GenerationRequest(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(blank=True, null=True)
     error_message = models.TextField(blank=True)
+    result_json = models.JSONField(null=True, blank=True)
     
     def __str__(self):
         return f"Génération {self.id} par {self.user.username} ({self.status})"
