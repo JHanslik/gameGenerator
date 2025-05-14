@@ -235,7 +235,7 @@ class HuggingFaceService:
             
             # Générer des images pour les lieux
             for location in game.locations.all():
-                location_prompt = f"{location.name}, location in a {game.get_ambiance_display()} {game.get_genre_display()} game"
+                location_prompt = f"{location.name}: {location.description}, location in a {game.get_ambiance_display()} {game.get_genre_display()} game. generate a high quality image of this location"
                 logger.info(f"Génération d'image pour le lieu {location.name}: {location_prompt}")
                 
                 try:
