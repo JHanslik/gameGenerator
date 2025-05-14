@@ -24,10 +24,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # La page d'accueil temporaire
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
-    # Ces lignes seront décommentées quand nous créerons les urls.py dans chaque app
-    # path('users/', include('users.urls')),
-    # path('games/', include('games.urls')),
-    # path('generator/', include('generator.urls')),
+    # URLs des applications
+    path('users/', include('users.urls', namespace='users')),
+    path('games/', include('games.urls', namespace='games')),
+    path('generator/', include('generator.urls', namespace='generator')),
 ]
 
 # Sert les fichiers media en développement

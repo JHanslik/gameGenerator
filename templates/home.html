@@ -1,12 +1,33 @@
-<!DOCTYPE html>
-<html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GameForge - Générateur de jeux vidéo par IA</title>
-  </head>
-  <body>
-    <h1>Bienvenue sur GameForge</h1>
-    <p>Plateforme de création de concepts de jeux vidéo assistée par IA</p>
-  </body>
-</html>
+{% extends 'base.html' %} {% block title %}GameForge - Générateur de jeux vidéo par IA{% endblock %} {% block content %}
+<div class="text-center py-12">
+  <h1 class="text-5xl font-bold mb-4 text-gray-800">GameForge</h1>
+  <p class="text-xl mb-12 text-gray-600 max-w-3xl mx-auto">Créez des concepts de jeux vidéo uniques en quelques clics grâce à l'intelligence artificielle</p>
+
+  <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+    <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+      <div class="text-5xl mb-4">🎲</div>
+      <h2 class="text-2xl font-semibold mb-4">Création guidée</h2>
+      <p class="mb-6 text-gray-600">Définissez le genre, l'ambiance et les thèmes de votre jeu pour obtenir un concept personnalisé.</p>
+      <a href="#" class="block w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"> Créer un jeu </a>
+    </div>
+
+    <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+      <div class="text-5xl mb-4">✨</div>
+      <h2 class="text-2xl font-semibold mb-4">Exploration aléatoire</h2>
+      <p class="mb-6 text-gray-600">Laissez l'IA vous surprendre avec un concept de jeu totalement inattendu.</p>
+      <a href="#" class="block w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition"> Générer aléatoirement </a>
+    </div>
+  </div>
+
+  <div class="mt-16 bg-gradient-to-r from-blue-100 to-indigo-100 p-8 rounded-xl max-w-4xl mx-auto">
+    <h2 class="text-2xl font-semibold mb-4">Explorez les créations de la communauté</h2>
+    <p class="mb-6 text-gray-700">Découvrez les jeux générés par d'autres utilisateurs pour vous inspirer.</p>
+    <a
+      href="#"
+      class="inline-block bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-8 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition"
+    >
+      Voir les jeux publics
+    </a>
+  </div>
+</div>
+{% endblock %}

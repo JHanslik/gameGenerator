@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}GameForge{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#f0f9ff",
+                100: "#e0f2fe",
+                200: "#bae6fd",
+                300: "#7dd3fc",
+                400: "#38bdf8",
+                500: "#0ea5e9",
+                600: "#0284c7",
+                700: "#0369a1",
+                800: "#075985",
+                900: "#0c4a6e",
+              },
+            },
+          },
+        },
+      };
+    </script>
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body class="min-h-screen bg-gray-100 flex flex-col">
+    <header class="bg-gradient-to-r from-blue-800 to-indigo-900 text-white shadow-lg">
+      <nav class="container mx-auto px-4 py-3 flex justify-between items-center">
+        <a href="/" class="text-2xl font-bold flex items-center">
+          <span class="mr-2">🎮</span>
+          <span>GameForge</span>
+        </a>
+        <div class="space-x-6">
+          <a href="/" class="hover:text-blue-200 transition">Accueil</a>
+          <a href="#" class="hover:text-blue-200 transition">Explorer</a>
+          {% if user.is_authenticated %}
+          <a href="#" class="hover:text-blue-200 transition">Tableau de bord</a>
+          <a href="#" class="hover:text-blue-200 transition">Mes jeux</a>
+          <a href="#" class="hover:text-blue-200 transition">Favoris</a>
+          <a href="#" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md transition">Déconnexion</a>
+          {% else %}
+          <a href="#" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md transition">Connexion</a>
+          <a href="#" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-md transition">Inscription</a>
+          {% endif %}
+        </div>
+      </nav>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 flex-grow">
+      {% if messages %}
+      <div class="mb-8">
+        {% for message in messages %}
+        <div
+          class="p-4 {% if message.tags == 'error' %}bg-red-100 text-red-700 border border-red-200{% elif message.tags == 'success' %}bg-green-100 text-green-700 border border-green-200{% else %}bg-blue-100 text-blue-700 border border-blue-200{% endif %} rounded-md"
+        >
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %} {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-auto">
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-4 md:mb-0">
+            <p class="text-lg font-bold mb-2">GameForge</p>
+            <p class="text-gray-400">Générateur de concepts de jeux vidéo par IA</p>
+          </div>
+          <div class="flex space-x-6">
+            <a href="#" class="hover:text-blue-300 transition">À propos</a>
+            <a href="#" class="hover:text-blue-300 transition">Politique de confidentialité</a>
+            <a href="#" class="hover:text-blue-300 transition">Contact</a>
+          </div>
+        </div>
+        <div class="mt-6 pt-6 border-t border-gray-700 text-center text-gray-400">
+          <p>&copy; {% now "Y" %} GameForge - Tous droits réservés</p>
+        </div>
+      </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>
