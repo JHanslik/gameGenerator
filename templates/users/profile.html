@@ -1,0 +1,45 @@
+{% extends 'base.html' %} {% block title %}Mon Profil | GameForge{% endblock %} {% block content %}
+<div class="bg-white rounded-xl shadow-md p-6 mb-8">
+  <h1 class="text-2xl font-bold mb-4">Mon Profil</h1>
+
+  <div class="grid md:grid-cols-2 gap-8">
+    <div>
+      <div class="mb-4">
+        <h2 class="text-lg font-semibold mb-2">Informations personnelles</h2>
+        <p><strong>Nom d'utilisateur:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Date d'inscription:</strong> {{ user.date_joined|date:"d/m/Y" }}</p>
+      </div>
+
+      <div>
+        <h2 class="text-lg font-semibold mb-2">Utilisation de l'API</h2>
+        <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
+          {% with percent=user.profile.api_call_count|floatformat:0 %} {% widthratio user.profile.api_call_count user.profile.api_call_limit 12 as tw_width %}
+          <div class="bg-blue-600 h-4 rounded-full w-{{tw_width}}/12"></div>
+          {% endwith %}
+        </div>
+        <p class="text-sm text-gray-600">{{ user.profile.api_call_count }} / {{ user.profile.api_call_limit }} appels API utilisés</p>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="text-lg font-semibold mb-2">Photo de profil</h2>
+      <div class="mb-4">
+        {% if user.profile.avatar %}
+        <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="w-32 h-32 rounded-full object-cover" />
+        {% else %}
+        <div class="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center">
+          <span class="text-4xl text-gray-400">{{ user.username|first|upper }}</span>
+        </div>
+        {% endif %}
+      </div>
+
+      <p class="text-sm text-gray-600 mb-4">Téléchargez une image pour personnaliser votre profil.</p>
+
+      <button class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        Modifier mon profil
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
