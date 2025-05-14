@@ -13,12 +13,12 @@ from .services import HuggingFaceService
 @login_required
 def generate_game_content(request, game_id):
     """Vue pour générer du contenu pour un jeu existant"""
-    game = get_object_or_404(Game, id=game_id, creator=request.user)
+    game = get_object_or_404(Game, id=game_id)
     
-    # Vérifier si l'utilisateur peut faire des appels API
-    if not request.user.profile.can_make_api_call():
-        messages.error(request, "Vous avez atteint votre limite quotidienne d'appels à l'API.")
-        return redirect('games:game_detail', slug=game.slug)
+    # Vérifier que l'utilisateur est le créateur du jeu
+    if game.creator != request.user:
+        messages.error(request, "Vous n'êtes pas autorisé à générer du contenu pour ce jeu.")
+        return redirect('games:game_list')
     
     # Créer une nouvelle requête de génération
     generation_request = GenerationRequest.objects.create(
@@ -28,43 +28,16 @@ def generate_game_content(request, game_id):
     )
     
     try:
-        # Appel au service pour générer le contenu
-        result = HuggingFaceService.generate_game_content(generation_request)
+        # Générer le contenu textuel
+        HuggingFaceService.generate_game_content(generation_request)
         
-        # Mettre à jour le compteur d'appels API
-        request.user.profile.increment_api_call()
-        
-        # Mise à jour des détails du jeu
-        game_detail, created = GameDetail.objects.get_or_create(game=game)
-        game_detail.universe_description = result.get('universe_description', '')
-        game_detail.plot = result.get('plot', '')
-        game_detail.act1 = result.get('act1', '')
-        game_detail.act2 = result.get('act2', '')
-        game_detail.act3 = result.get('act3', '')
-        game_detail.save()
-        
-        # Création des personnages
-        for character_data in result.get('characters', []):
-            Character.objects.create(
-                game=game,
-                name=character_data.get('name', 'Sans nom'),
-                role=character_data.get('role', ''),
-                background=character_data.get('background', ''),
-                abilities=character_data.get('abilities', '')
-            )
-        
-        # Création des lieux
-        for location_data in result.get('locations', []):
-            Location.objects.create(
-                game=game,
-                name=location_data.get('name', 'Sans nom'),
-                description=location_data.get('description', '')
-            )
+        # Générer les images (en option, car cela peut prendre du temps)
+        if request.GET.get('with_images', 'true') == 'true':
+            HuggingFaceService.generate_game_images(game)
         
         messages.success(request, "Contenu généré avec succès !")
-        
     except Exception as e:
-        messages.error(request, f"Erreur lors de la génération: {str(e)}")
+        messages.error(request, f"Erreur lors de la génération : {str(e)}")
     
     return redirect('games:game_detail', slug=game.slug)
 

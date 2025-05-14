@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
   <head>
@@ -27,6 +28,7 @@
         },
       };
     </script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
     {% block extra_css %}{% endblock %}
   </head>
   <body class="min-h-screen bg-gray-100 flex flex-col">
@@ -85,6 +87,8 @@
       </div>
     </footer>
 
+    <!-- Scripts -->
+    <script src="{% static 'js/tabs.js' %}"></script>
     {% block extra_js %}{% endblock %}
   </body>
 </html>

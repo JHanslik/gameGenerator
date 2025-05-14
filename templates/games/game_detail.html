@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% block title %}{{ game.title }} | GameForge{% endblock %} {% block content %}
+{% extends 'base.html' %} {% load static %} {% load custom_filters %} {% block title %}{{ game.title }} | GameForge{% endblock %} {% block content %}
 <div class="max-w-4xl mx-auto">
   <div class="mb-6 flex items-center">
     <a href="{% url 'games:game_list' %}" class="text-blue-600 hover:underline inline-flex items-center mr-4">
@@ -28,9 +28,9 @@
         <div class="flex flex-wrap gap-2">
           <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"> {{ game.get_genre_display }} </span>
           <span class="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium"> {{ game.get_ambiance_display }} </span>
-          {% for keyword in game.keywords.split(',') %} {% if keyword|trim %}
-          <span class="inline-block px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm"> {{ keyword|trim }} </span>
-          {% endif %} {% endfor %}
+          {% with keywords=game.keywords|split:"," %} {% for keyword in keywords %} {% if keyword|striptags|trim %}
+          <span class="inline-block px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm"> {{ keyword|striptags|trim }} </span>
+          {% endif %} {% endfor %} {% endwith %}
         </div>
 
         <!-- Bouton Favoris -->
@@ -70,14 +70,31 @@
     </div>
 
     {% if game.creator == request.user %}
-    <div class="border-t border-gray-200 px-6 py-4 bg-gray-50 flex justify-end">
+    <div class="border-t border-gray-200 px-6 py-4 bg-gray-50 flex justify-between">
+      <div class="flex items-center">
+        <input type="checkbox" id="with_images" name="with_images" checked class="h-4 w-4 text-blue-600 rounded" />
+        <label for="with_images" class="ml-2 text-sm text-gray-700">Générer également des images</label>
+      </div>
       <a
-        href="{% url 'generator:generate_game_content' game_id=game.id %}"
+        href="{% url 'generator:generate_game_content' game_id=game.id %}?with_images=true"
+        id="generate-btn"
         class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
       >
         Générer du contenu
       </a>
     </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const checkbox = document.getElementById("with_images");
+        const generateBtn = document.getElementById("generate-btn");
+
+        checkbox.addEventListener("change", function () {
+          const withImages = this.checked ? "true" : "false";
+          generateBtn.href = "{% url 'generator:generate_game_content' game_id=game.id %}?with_images=" + withImages;
+        });
+      });
+    </script>
     {% endif %}
   </div>
 
@@ -88,14 +105,28 @@
     <!-- Onglets pour naviguer entre les différentes sections -->
     <div class="border-b border-gray-200 mb-4">
       <nav class="flex space-x-8" aria-label="Tabs">
-        <button class="py-4 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600">Univers & Histoire</button>
-        <button class="py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">Personnages</button>
-        <button class="py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">Lieux</button>
+        <button onclick="showTab('universe')" id="tab-universe" class="tab-btn py-4 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600">
+          Univers & Histoire
+        </button>
+        <button
+          onclick="showTab('characters')"
+          id="tab-characters"
+          class="tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300"
+        >
+          Personnages
+        </button>
+        <button
+          onclick="showTab('locations')"
+          id="tab-locations"
+          class="tab-btn py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300"
+        >
+          Lieux
+        </button>
       </nav>
     </div>
 
     <!-- Contenu de l'univers et de l'histoire -->
-    <div class="bg-white shadow-md rounded-lg p-6">
+    <div id="content-universe" class="tab-content bg-white shadow-md rounded-lg p-6">
       {% if game.detail.universe_description %}
       <div class="mb-6">
         <h3 class="text-xl font-semibold mb-2">L'univers du jeu</h3>
@@ -129,6 +160,60 @@
       </div>
       {% endif %}
     </div>
+
+    <!-- Contenu des personnages -->
+    <div id="content-characters" class="tab-content bg-white shadow-md rounded-lg p-6 hidden">
+      {% if game.characters.exists %}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% for character in game.characters.all %}
+        <div class="border rounded-lg p-4 hover:shadow-md transition">
+          <h3 class="text-xl font-semibold mb-2">{{ character.name }}</h3>
+          <p class="text-sm font-medium text-blue-600 mb-2">{{ character.role }}</p>
+
+          {% if character.image %}
+          <img src="{{ character.image.url }}" alt="{{ character.name }}" class="w-full h-48 object-cover rounded-md mb-4" />
+          {% endif %}
+
+          <div class="mb-3">
+            <h4 class="font-semibold text-gray-700">Histoire</h4>
+            <p class="text-gray-600">{{ character.background|linebreaks }}</p>
+          </div>
+
+          <div>
+            <h4 class="font-semibold text-gray-700">Capacités</h4>
+            <p class="text-gray-600">{{ character.abilities|linebreaks }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-gray-500 text-center py-4">Aucun personnage n'a encore été créé pour ce jeu.</p>
+      {% endif %}
+    </div>
+
+    <!-- Contenu des lieux -->
+    <div id="content-locations" class="tab-content bg-white shadow-md rounded-lg p-6 hidden">
+      {% if game.locations.exists %}
+      <div class="grid grid-cols-1 gap-6">
+        {% for location in game.locations.all %}
+        <div class="border rounded-lg p-4 hover:shadow-md transition">
+          <h3 class="text-xl font-semibold mb-2">{{ location.name }}</h3>
+
+          {% if location.image %}
+          <img src="{{ location.image.url }}" alt="{{ location.name }}" class="w-full h-48 object-cover rounded-md mb-4" />
+          {% endif %}
+
+          <div>
+            <p class="text-gray-600">{{ location.description|linebreaks }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-gray-500 text-center py-4">Aucun lieu n'a encore été créé pour ce jeu.</p>
+      {% endif %}
+    </div>
+
     {% else %} {% if game.creator == request.user %}
     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
       <h3 class="text-lg font-semibold mb-2 text-yellow-800">Contenu non généré</h3>
