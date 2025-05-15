@@ -14,11 +14,33 @@
       Retour
     </a>
     {% if game.creator == request.user %}
-    <span class="ml-auto text-sm text-gray-500">
-      <span class="inline-block px-2 py-1 {% if game.is_public %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %} rounded">
+    <div class="ml-auto flex items-center space-x-2">
+      <a
+        href="{% url 'games:toggle_public' slug=game.slug %}"
+        class="inline-flex items-center px-3 py-1.5 border {% if game.is_public %}bg-green-100 text-green-800 border-green-200 hover:bg-green-200{% else %}bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200{% endif %} rounded transition-colors"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+          {% if game.is_public %}
+          <path fill-rule="evenodd" d="M10 12a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+          <path
+            fill-rule="evenodd"
+            d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+            clip-rule="evenodd"
+          />
+          {% else %}
+          <path
+            fill-rule="evenodd"
+            d="M3.28 2.22a.75.75 0 00-1.06 1.06l14.5 14.5a.75.75 0 101.06-1.06l-1.745-1.745a10.029 10.029 0 003.3-4.38 1.651 1.651 0 000-1.185A10.004 10.004 0 009.999 3a9.956 9.956 0 00-4.744 1.194L3.28 2.22zM7.752 6.69l1.092 1.092a2.5 2.5 0 013.374 3.373l1.091 1.092a4 4 0 00-5.557-5.557z"
+            clip-rule="evenodd"
+          />
+          <path
+            d="M10.748 13.93l2.523 2.523a9.987 9.987 0 01-3.27.547c-4.258 0-7.894-2.66-9.337-6.41a1.651 1.651 0 010-1.186A10.007 10.007 0 012.839 6.02L6.07 9.252a4 4 0 004.678 4.678z"
+          />
+          {% endif %}
+        </svg>
         {% if game.is_public %}Public{% else %}Privé{% endif %}
-      </span>
-    </span>
+      </a>
+    </div>
     {% endif %}
   </div>
 
@@ -40,6 +62,7 @@
         <a
           href="{% url 'games:toggle_favorite' slug=game.slug %}"
           class="ml-auto inline-flex items-center p-2 {% if user in game.favorited_by.all %}text-red-500{% else %}text-gray-400 hover:text-red-500{% endif %} transition"
+          title="{% if user in game.favorited_by.all %}Retirer des favoris{% else %}Ajouter aux favoris{% endif %}"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
             <path
@@ -231,4 +254,105 @@
 {% endblock %} {% block extra_js %}
 <script src="{% static 'js/tabs.js' %}"></script>
 <script src="{% static 'js/generation-animation.js' %}"></script>
+<script>
+  // Fonction pour gérer le basculement des favoris
+  document.addEventListener("DOMContentLoaded", function () {
+    // Gestion du bouton favori
+    const favoriteBtn = document.querySelector('a[href*="toggle_favorite"]');
+    if (favoriteBtn) {
+      favoriteBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        fetch(this.href, {
+          method: "GET",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "success") {
+              // Mettre à jour l'apparence du bouton
+              if (data.is_favorite) {
+                this.classList.add("text-red-500");
+                this.classList.remove("text-gray-400");
+                this.title = "Retirer des favoris";
+              } else {
+                this.classList.remove("text-red-500");
+                this.classList.add("text-gray-400");
+                this.title = "Ajouter aux favoris";
+              }
+            }
+          })
+          .catch((error) => console.error("Erreur:", error));
+      });
+    }
+
+    // Gestion du bouton pour changer le statut public/privé
+    const togglePublicBtn = document.querySelector('a[href*="toggle-public"]');
+    if (togglePublicBtn) {
+      togglePublicBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        fetch(this.href, {
+          method: "GET",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status === "success") {
+              // Mettre à jour l'apparence du bouton
+              const isPublic = data.is_public;
+
+              // Mettre à jour les classes CSS
+              if (isPublic) {
+                this.classList.remove("bg-gray-100", "text-gray-800", "border-gray-200", "hover:bg-gray-200");
+                this.classList.add("bg-green-100", "text-green-800", "border-green-200", "hover:bg-green-200");
+                this.querySelector("svg").innerHTML = `
+                <path fill-rule="evenodd" d="M10 12a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+              `;
+                this.innerHTML = this.innerHTML.replace("Privé", "Public");
+              } else {
+                this.classList.remove("bg-green-100", "text-green-800", "border-green-200", "hover:bg-green-200");
+                this.classList.add("bg-gray-100", "text-gray-800", "border-gray-200", "hover:bg-gray-200");
+                this.querySelector("svg").innerHTML = `
+                <path fill-rule="evenodd" d="M3.28 2.22a.75.75 0 00-1.06 1.06l14.5 14.5a.75.75 0 101.06-1.06l-1.745-1.745a10.029 10.029 0 003.3-4.38 1.651 1.651 0 000-1.185A10.004 10.004 0 009.999 3a9.956 9.956 0 00-4.744 1.194L3.28 2.22zM7.752 6.69l1.092 1.092a2.5 2.5 0 013.374 3.373l1.091 1.092a4 4 0 00-5.557-5.557z" clip-rule="evenodd" />
+                <path d="M10.748 13.93l2.523 2.523a9.987 9.987 0 01-3.27.547c-4.258 0-7.894-2.66-9.337-6.41a1.651 1.651 0 010-1.186A10.007 10.007 0 012.839 6.02L6.07 9.252a4 4 0 004.678 4.678z" />
+              `;
+                this.innerHTML = this.innerHTML.replace("Public", "Privé");
+              }
+
+              // Afficher un message de confirmation temporaire
+              const messageContainer = document.createElement("div");
+              messageContainer.className = "fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md";
+              messageContainer.style.zIndex = "9999";
+              messageContainer.innerHTML = `
+              <div class="flex">
+                <div class="py-1">
+                  <svg class="h-6 w-6 text-green-500 mr-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <p class="font-bold">Statut modifié</p>
+                  <p class="text-sm">Votre jeu est maintenant ${isPublic ? "public" : "privé"}</p>
+                </div>
+              </div>
+            `;
+              document.body.appendChild(messageContainer);
+
+              // Supprimer le message après 3 secondes
+              setTimeout(() => {
+                messageContainer.remove();
+              }, 3000);
+            }
+          })
+          .catch((error) => console.error("Erreur:", error));
+      });
+    }
+  });
+</script>
 {% endblock %}

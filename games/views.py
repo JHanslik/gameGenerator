@@ -81,6 +81,31 @@ def toggle_favorite(request, slug):
     return redirect(request.META.get('HTTP_REFERER', 'games:game_detail'))
 
 @login_required
+def toggle_public(request, slug):
+    """Vue pour basculer le statut public/privé d'un jeu"""
+    game = get_object_or_404(Game, slug=slug)
+    
+    # Vérifier que l'utilisateur est bien le créateur du jeu
+    if game.creator != request.user:
+        messages.error(request, "Vous n'avez pas l'autorisation de modifier ce jeu.")
+        return redirect('games:game_detail', slug=game.slug)
+    
+    # Changer le statut
+    game.is_public = not game.is_public
+    game.save()
+    
+    # Message de confirmation
+    status = "public" if game.is_public else "privé"
+    messages.success(request, f"Le jeu '{game.title}' est maintenant {status}.")
+    
+    # Si c'est une requête AJAX, renvoyer une réponse JSON
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'status': 'success', 'is_public': game.is_public})
+    
+    # Sinon, rediriger vers la page de détail du jeu
+    return redirect('games:game_detail', slug=game.slug)
+
+@login_required
 def favorites(request):
     """Vue pour afficher les jeux favoris de l'utilisateur"""
     favorite_games = Game.objects.filter(favorited_by__user=request.user)
