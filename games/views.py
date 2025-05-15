@@ -5,14 +5,49 @@ from .models import Game, GameDetail, Favorite
 from .forms import GameCreationForm
 from django.http import JsonResponse
 import random
+from django.db import models
 
 # Create your views here.
 
 @login_required
 def game_list(request):
     """Vue pour afficher la liste des jeux publics"""
-    games = Game.objects.filter(is_public=True).order_by('-created_at')
-    return render(request, 'games/game_list.html', {'games': games})
+    games = Game.objects.filter(is_public=True)
+    
+    # Traitement de la recherche
+    search_query = request.GET.get('search', '')
+    if search_query:
+        games = games.filter(
+            models.Q(title__icontains=search_query) |
+            models.Q(description__icontains=search_query) |
+            models.Q(keywords__icontains=search_query) |
+            models.Q(cultural_references__icontains=search_query)
+        )
+    
+    # Filtrer par genre si spécifié
+    genre = request.GET.get('genre', '')
+    if genre:
+        games = games.filter(genre=genre)
+    
+    # Filtrer par ambiance si spécifiée
+    ambiance = request.GET.get('ambiance', '')
+    if ambiance:
+        games = games.filter(ambiance=ambiance)
+    
+    # Tri par date (plus récent par défaut)
+    games = games.order_by('-created_at')
+    
+    # Contexte pour les filtres
+    context = {
+        'games': games,
+        'search_query': search_query,
+        'genre_filter': genre,
+        'ambiance_filter': ambiance,
+        'genre_choices': Game.GENRE_CHOICES,
+        'ambiance_choices': Game.AMBIANCE_CHOICES,
+    }
+    
+    return render(request, 'games/game_list.html', context)
 
 @login_required
 def my_games(request):
@@ -207,3 +242,53 @@ def delete_game(request, slug):
     
     # Rediriger vers le tableau de bord
     return redirect('users:dashboard')
+
+@login_required
+def search_games_ajax(request):
+    """Vue pour rechercher des jeux via AJAX"""
+    games = Game.objects.filter(is_public=True)
+    
+    # Traitement de la recherche
+    search_query = request.GET.get('search', '')
+    if search_query:
+        games = games.filter(
+            models.Q(title__icontains=search_query) |
+            models.Q(description__icontains=search_query) |
+            models.Q(keywords__icontains=search_query) |
+            models.Q(cultural_references__icontains=search_query)
+        )
+    
+    # Filtrer par genre si spécifié
+    genre = request.GET.get('genre', '')
+    if genre:
+        games = games.filter(genre=genre)
+    
+    # Filtrer par ambiance si spécifiée
+    ambiance = request.GET.get('ambiance', '')
+    if ambiance:
+        games = games.filter(ambiance=ambiance)
+    
+    # Tri par date (plus récent par défaut)
+    games = games.order_by('-created_at')
+    
+    # Préparer les données pour JSON
+    games_data = []
+    for game in games:
+        # Récupérer l'URL de l'image s'il y en a une
+        image_url = None
+        if game.images.first():
+            image_url = game.images.first().image.url
+        
+        games_data.append({
+            'id': game.id,
+            'title': game.title,
+            'slug': game.slug,
+            'description': game.description,
+            'genre': game.get_genre_display(),
+            'ambiance': game.get_ambiance_display(),
+            'creator': game.creator.username,
+            'created_at': game.created_at.strftime('%d/%m/%Y'),
+            'image_url': image_url
+        })
+    
+    return JsonResponse({'games': games_data})

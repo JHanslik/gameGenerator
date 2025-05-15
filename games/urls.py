@@ -5,6 +5,7 @@ app_name = 'games'
 
 urlpatterns = [
     path('', views.game_list, name='game_list'),
+    path('search-ajax/', views.search_games_ajax, name='search_games_ajax'),
     path('my-games/', views.my_games, name='my_games'),
     path('create/', views.game_create, name='game_create'),
     path('create-random/', views.random_game_create, name='random_game_create'),
