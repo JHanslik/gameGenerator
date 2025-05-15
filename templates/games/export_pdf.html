@@ -1,0 +1,326 @@
+{% load static %} {% load custom_filters %}
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ game.title }} - Document de Conception de Jeu</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 2.5cm 1.5cm;
+      }
+
+      body {
+        font-family: Helvetica, Arial, sans-serif;
+        line-height: 1.5;
+        color: #1f2937;
+        background-color: white;
+      }
+
+      .page-break {
+        page-break-after: always;
+      }
+
+      .cover-page {
+        text-align: center;
+        margin-top: 6cm;
+      }
+
+      .game-title {
+        font-size: 32pt;
+        font-weight: bold;
+        color: #075985;
+        margin-bottom: 1cm;
+      }
+
+      .game-subtitle {
+        font-size: 18pt;
+        color: #4b5563;
+        margin-bottom: 2cm;
+      }
+
+      .game-creator {
+        font-size: 14pt;
+        color: #6b7280;
+        margin-bottom: 1cm;
+      }
+
+      .creation-date {
+        font-size: 12pt;
+        color: #6b7280;
+      }
+
+      .table-of-contents {
+        margin: 2cm 0;
+      }
+
+      .toc-title {
+        font-size: 22pt;
+        font-weight: bold;
+        color: #0369a1;
+        margin-bottom: 1cm;
+      }
+
+      .toc-item {
+        display: block;
+        margin-bottom: 0.5cm;
+        font-size: 14pt;
+        color: #374151;
+      }
+
+      .section-title {
+        font-size: 24pt;
+        font-weight: bold;
+        color: #0369a1;
+        margin-top: 1cm;
+        margin-bottom: 0.8cm;
+        page-break-after: avoid;
+      }
+
+      .subsection-title {
+        font-size: 18pt;
+        font-weight: bold;
+        color: #0284c7;
+        margin-top: 0.8cm;
+        margin-bottom: 0.5cm;
+        page-break-after: avoid;
+      }
+
+      .content-text {
+        font-size: 12pt;
+        color: #1f2937;
+        margin-bottom: 0.5cm;
+        text-align: justify;
+      }
+
+      .tag-container {
+        margin-bottom: 0.8cm;
+      }
+
+      .tag {
+        display: inline-block;
+        padding: 0.2cm 0.4cm;
+        background-color: #e0f2fe;
+        color: #0369a1;
+        border-radius: 50px;
+        font-weight: medium;
+        font-size: 10pt;
+        margin-right: 0.3cm;
+        margin-bottom: 0.3cm;
+      }
+
+      .character-card,
+      .location-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 0.3cm;
+        padding: 0.5cm;
+        margin-bottom: 1cm;
+        background-color: #f9fafb;
+      }
+
+      .card-header {
+        margin-bottom: 0.3cm;
+      }
+
+      .card-title {
+        font-size: 16pt;
+        font-weight: bold;
+        color: #0369a1;
+      }
+
+      .card-content {
+        margin-bottom: 0.5cm;
+      }
+
+      .image-container {
+        margin-bottom: 0.5cm;
+      }
+
+      .image-container img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.2cm;
+        border: 1px solid #e5e7eb;
+      }
+
+      .image-caption {
+        font-size: 10pt;
+        color: #4b5563;
+        text-align: center;
+        margin-top: 0.2cm;
+      }
+
+      .footer {
+        margin-top: 2cm;
+        padding-top: 0.5cm;
+        border-top: 1px solid #d1d5db;
+        font-size: 10pt;
+        color: #6b7280;
+        text-align: center;
+      }
+    </style>
+    <!-- Styles spécifiques à xhtml2pdf -->
+    <style type="text/pisa">
+      @page {
+        @frame header {
+          -pdf-frame-content: headerContent;
+          top: 0.5cm;
+          margin-left: 1.5cm;
+          margin-right: 1.5cm;
+          height: 1cm;
+        }
+        @frame footer {
+          -pdf-frame-content: footerContent;
+          bottom: 0.5cm;
+          margin-left: 1.5cm;
+          margin-right: 1.5cm;
+          height: 1cm;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- En-tête -->
+    <div id="headerContent">GameForge - Document de Conception de Jeu</div>
+
+    <!-- Pied de page -->
+    <div id="footerContent"><pdf:pagenumber /> sur <pdf:pagecount /></div>
+
+    <!-- Page de couverture -->
+    <div class="cover-page">
+      <div class="game-title">{{ game.title }}</div>
+      <div class="game-subtitle">Document de Conception de Jeu</div>
+      <div class="game-creator">Par {{ game.creator.username }}</div>
+      <div class="creation-date">Créé le {{ game.created_at|date:"d/m/Y" }}</div>
+      {% if game.updated_at != game.created_at %}
+      <div class="creation-date">Dernière mise à jour le {{ game.updated_at|date:"d/m/Y" }}</div>
+      {% endif %}
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Table des matières -->
+    <div class="table-of-contents">
+      <div class="toc-title">Table des matières</div>
+
+      <div class="toc-item">1. Présentation du jeu</div>
+      <div class="toc-item">2. Univers et histoire</div>
+
+      {% if game.characters.exists %}
+      <div class="toc-item">3. Personnages</div>
+      {% endif %} {% if game.locations.exists %}
+      <div class="toc-item">{% if game.characters.exists %}4{% else %}3{% endif %}. Lieux</div>
+      {% endif %}
+
+      <div class="toc-item">
+        {% if game.characters.exists and game.locations.exists %}5{% elif game.characters.exists or game.locations.exists %}4{% else %}3{% endif %}. Références
+        et inspirations
+      </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- Section 1: Présentation du jeu -->
+    <div class="section-title">1. Présentation du jeu</div>
+
+    <div class="tag-container">
+      <div class="tag">{{ game.get_genre_display }}</div>
+      <div class="tag">{{ game.get_ambiance_display }}</div>
+      {% with keywords=game.keywords|split:"," %} {% for keyword in keywords %} {% if keyword|striptags|trim %}
+      <div class="tag">{{ keyword|striptags|trim }}</div>
+      {% endif %} {% endfor %} {% endwith %}
+    </div>
+
+    <div class="content-text">{{ game.description }}</div>
+
+    <div class="page-break"></div>
+
+    <!-- Section 2: Univers et histoire -->
+    <div class="section-title">2. Univers et histoire</div>
+
+    {% if game.detail.universe_description %}
+    <div class="subsection-title">L'univers du jeu</div>
+    <div class="content-text">{{ game.detail.universe_description|linebreaksbr }}</div>
+    {% endif %} {% if game.detail.plot %}
+    <div class="subsection-title">Intrigue principale</div>
+    <div class="content-text">{{ game.detail.plot|linebreaksbr }}</div>
+    {% endif %} {% if game.detail.act1 or game.detail.act2 or game.detail.act3 %}
+    <div class="subsection-title">Structure narrative</div>
+
+    {% if game.detail.act1 %}
+    <div class="subsection-title">Acte 1</div>
+    <div class="content-text">{{ game.detail.act1|linebreaksbr }}</div>
+    {% endif %} {% if game.detail.act2 %}
+    <div class="subsection-title">Acte 2</div>
+    <div class="content-text">{{ game.detail.act2|linebreaksbr }}</div>
+    {% endif %} {% if game.detail.act3 %}
+    <div class="subsection-title">Acte 3</div>
+    <div class="content-text">{{ game.detail.act3|linebreaksbr }}</div>
+    {% endif %} {% endif %} {% if game.characters.exists %}
+    <div class="page-break"></div>
+
+    <!-- Section 3: Personnages -->
+    <div class="section-title">3. Personnages</div>
+
+    {% for character in game.characters.all %}
+    <div class="character-card">
+      <div class="card-header">
+        <div class="card-title">{{ character.name }}</div>
+        <div class="tag">{{ character.role }}</div>
+      </div>
+
+      <div class="card-content">
+        <div class="content-text">{{ character.description|linebreaksbr }}</div>
+      </div>
+
+      {% if character.image %}
+      <div class="image-container">
+        <img src="{{ MEDIA_URL }}{{ character.image.url|cut:'/media/' }}" alt="{{ character.name }}" />
+        <div class="image-caption">{{ character.name }}</div>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %} {% endif %} {% if game.locations.exists %}
+    <div class="page-break"></div>
+
+    <!-- Section 4: Lieux -->
+    <div class="section-title">{% if game.characters.exists %}4{% else %}3{% endif %}. Lieux</div>
+
+    {% for location in game.locations.all %}
+    <div class="location-card">
+      <div class="card-header">
+        <div class="card-title">{{ location.name }}</div>
+      </div>
+
+      <div class="card-content">
+        <div class="content-text">{{ location.description|linebreaksbr }}</div>
+      </div>
+
+      {% if location.image %}
+      <div class="image-container">
+        <img src="{{ MEDIA_URL }}{{ location.image.url|cut:'/media/' }}" alt="{{ location.name }}" />
+        <div class="image-caption">{{ location.name }}</div>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %} {% endif %}
+
+    <div class="page-break"></div>
+
+    <!-- Section 5: Références et inspirations -->
+    <div class="section-title">
+      {% if game.characters.exists and game.locations.exists %}5{% elif game.characters.exists or game.locations.exists %}4{% else %}3{% endif %}. Références et
+      inspirations
+    </div>
+
+    {% if game.cultural_references %}
+    <div class="content-text">{{ game.cultural_references|linebreaksbr }}</div>
+    {% else %}
+    <div class="content-text">Aucune référence culturelle spécifiée.</div>
+    {% endif %}
+
+    <!-- Pied de page -->
+    <div class="footer">Document généré par GameForge</div>
+  </body>
+</html>

@@ -13,6 +13,25 @@
       </svg>
       Retour
     </a>
+
+    <!-- Bouton Export PDF -->
+    <a
+      href="{% url 'generator:export_pdf' game_id=game.id %}"
+      class="pdf-export-btn text-indigo-600 hover:text-indigo-800 inline-flex items-center mr-4"
+      title="Exporter en PDF"
+      id="export-pdf-btn"
+      target="_blank"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+        <path
+          fill-rule="evenodd"
+          d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      <span>Exporter en PDF</span>
+    </a>
+
     {% if game.creator == request.user %}
     <div class="ml-auto flex items-center space-x-2">
       <a
@@ -291,6 +310,26 @@
     // Initialiser la fonctionnalité de vidéo de danse
     if (typeof initDanceVideo === "function") {
       initDanceVideo();
+    }
+
+    // Gestion du bouton d'export PDF pour éviter le double téléchargement
+    const exportPdfBtn = document.getElementById("export-pdf-btn");
+    if (exportPdfBtn) {
+      exportPdfBtn.addEventListener("click", function (e) {
+        // Empêcher le double clic
+        if (this.getAttribute("data-processing") === "true") {
+          e.preventDefault();
+          return false;
+        }
+
+        // Marquer le bouton comme en cours de traitement
+        this.setAttribute("data-processing", "true");
+
+        // Réactiver le bouton après un délai
+        setTimeout(() => {
+          this.removeAttribute("data-processing");
+        }, 3000); // 3 secondes devraient suffire pour la plupart des téléchargements
+      });
     }
 
     // Gestion du bouton favori

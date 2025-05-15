@@ -4,9 +4,17 @@ from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
 from django.utils import timezone
 from django.core.files.base import ContentFile
+from django.template.loader import render_to_string, get_template
+from django.conf import settings
+from django.contrib.staticfiles import finders
 from games.models import Game, GameDetail, Character, Location, GameImage
 from .models import GenerationRequest, AIModel
 from .services import HuggingFaceService
+import tempfile
+import os
+import re
+from pathlib import Path
+from io import BytesIO
 
 # Create your views here.
 
@@ -96,3 +104,87 @@ def generation_status(request, request_id):
         'error_message': generation_request.error_message,
         'result': generation_request.result_json
     })
+
+def fetch_resources(uri, rel):
+    """
+    Récupère les ressources externes (images, CSS, etc.) pour xhtml2pdf
+    """
+    if uri.startswith(settings.MEDIA_URL):
+        path = os.path.join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ""))
+    elif uri.startswith(settings.STATIC_URL):
+        path = finders.find(uri.replace(settings.STATIC_URL, ""))
+    else:
+        path = None
+        
+    if path:
+        return path
+    return uri
+
+@login_required
+def export_game_to_pdf(request, game_id):
+    """Exporte un jeu au format PDF en utilisant xhtml2pdf"""
+    game = get_object_or_404(Game, id=game_id)
+    
+    # Vérifier que l'utilisateur est le créateur du jeu ou que le jeu est public
+    if game.creator != request.user and not game.is_public:
+        messages.error(request, "Vous n'êtes pas autorisé à exporter ce jeu.")
+        return redirect('games:game_list')
+    
+    try:
+        # Importer la bibliothèque xhtml2pdf
+        from xhtml2pdf import pisa
+        
+        # Préparer le contexte avec les URL absolues
+        host = request.get_host()
+        protocol = 'https' if request.is_secure() else 'http'
+        base_url = f"{protocol}://{host}"
+        
+        context = {
+            'game': game,
+            'request': request,
+            'base_url': base_url,
+            'MEDIA_URL': f"{base_url}{settings.MEDIA_URL}",
+            'STATIC_URL': f"{base_url}{settings.STATIC_URL}",
+        }
+        
+        # Rendre le template HTML avec le contexte
+        template = get_template('games/export_pdf.html')
+        html_string = template.render(context)
+        
+        # Remplacer les liens relatifs par des liens absolus pour les images
+        html_string = re.sub(r'src="(/media/[^"]+)"', f'src="{base_url}\\1"', html_string)
+        
+        # Créer un buffer pour le PDF
+        buffer = BytesIO()
+        
+        # Convertir le HTML en PDF avec gestion des ressources
+        pisa_status = pisa.CreatePDF(
+            html_string,
+            dest=buffer,
+            encoding='utf-8',
+            link_callback=fetch_resources
+        )
+        
+        # Vérifier si la conversion a réussi
+        if pisa_status.err:
+            messages.error(request, "Une erreur s'est produite lors de la génération du PDF.")
+            return redirect('games:game_detail', slug=game.slug)
+        
+        # Réinitialiser le pointeur du buffer
+        buffer.seek(0)
+        
+        # Traiter le nom du fichier pour éviter les caractères problématiques
+        filename = re.sub(r'[^\w\s-]', '', game.title).replace(' ', '_')
+        
+        # Créer la réponse HTTP avec le contenu PDF
+        response = HttpResponse(buffer.read(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{filename}_GDD.pdf"'
+        
+        return response
+        
+    except ImportError:
+        messages.error(request, "L'export PDF n'est pas disponible. Veuillez installer xhtml2pdf.")
+        return redirect('games:game_detail', slug=game.slug)
+    except Exception as e:
+        messages.error(request, f"Une erreur s'est produite lors de l'export : {str(e)}")
+        return redirect('games:game_detail', slug=game.slug)

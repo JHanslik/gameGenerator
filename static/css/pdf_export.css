@@ -1,0 +1,218 @@
+/* Style pour l'export PDF */
+:root {
+  --primary-50: #f0f9ff;
+  --primary-100: #e0f2fe;
+  --primary-500: #0ea5e9;
+  --primary-600: #0284c7;
+  --primary-700: #0369a1;
+  --primary-800: #075985;
+  --primary-900: #0c4a6e;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+}
+
+@page {
+  margin: 2.5cm 1.5cm;
+  @top-center {
+    content: "GameForge - Document de Conception de Jeu";
+    font-size: 10pt;
+    color: var(--gray-500);
+  }
+  @bottom-center {
+    content: "Page " counter(page) " sur " counter(pages);
+    font-size: 10pt;
+    color: var(--gray-500);
+  }
+}
+
+body {
+  font-family: "Helvetica", "Arial", sans-serif;
+  line-height: 1.5;
+  color: var(--gray-800);
+  background-color: white;
+}
+
+.page-break {
+  page-break-after: always;
+}
+
+.cover-page {
+  text-align: center;
+  margin-top: 4cm;
+}
+
+.game-title {
+  font-size: 32pt;
+  font-weight: bold;
+  color: var(--primary-800);
+  margin-bottom: 1cm;
+}
+
+.game-subtitle {
+  font-size: 18pt;
+  color: var(--gray-600);
+  margin-bottom: 2cm;
+}
+
+.game-creator {
+  font-size: 14pt;
+  color: var(--gray-500);
+  margin-bottom: 1cm;
+}
+
+.creation-date {
+  font-size: 12pt;
+  color: var(--gray-500);
+}
+
+.table-of-contents {
+  margin: 2cm 0;
+}
+
+.toc-title {
+  font-size: 22pt;
+  font-weight: bold;
+  color: var(--primary-700);
+  margin-bottom: 1cm;
+}
+
+.toc-item {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 0.5cm;
+}
+
+.toc-item-text {
+  font-size: 14pt;
+  color: var(--gray-700);
+}
+
+.toc-item-page {
+  margin-left: auto;
+  color: var(--gray-600);
+}
+
+.toc-dots {
+  flex-grow: 1;
+  margin: 0 0.5cm;
+  border-bottom: 1px dotted var(--gray-400);
+}
+
+.section-title {
+  font-size: 24pt;
+  font-weight: bold;
+  color: var(--primary-700);
+  margin-top: 1cm;
+  margin-bottom: 0.8cm;
+  page-break-after: avoid;
+}
+
+.subsection-title {
+  font-size: 18pt;
+  font-weight: bold;
+  color: var(--primary-600);
+  margin-top: 0.8cm;
+  margin-bottom: 0.5cm;
+  page-break-after: avoid;
+}
+
+.content-text {
+  font-size: 12pt;
+  color: var(--gray-800);
+  margin-bottom: 0.5cm;
+  text-align: justify;
+}
+
+.tag-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3cm;
+  margin-bottom: 0.8cm;
+}
+
+.tag {
+  display: inline-block;
+  padding: 0.2cm 0.4cm;
+  background-color: var(--primary-100);
+  color: var(--primary-700);
+  border-radius: 50px;
+  font-weight: medium;
+  font-size: 10pt;
+}
+
+.character-card,
+.location-card {
+  border: 1px solid var(--gray-200);
+  border-radius: 0.3cm;
+  padding: 0.5cm;
+  margin-bottom: 1cm;
+  background-color: var(--gray-50);
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.3cm;
+}
+
+.card-title {
+  font-size: 16pt;
+  font-weight: bold;
+  color: var(--primary-700);
+}
+
+.card-content {
+  margin-bottom: 0.5cm;
+}
+
+.grid-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1cm;
+}
+
+.image-container {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  margin-bottom: 0.5cm;
+}
+
+.image-container img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.2cm;
+  border: 1px solid var(--gray-200);
+}
+
+.image-caption {
+  font-size: 10pt;
+  color: var(--gray-600);
+  text-align: center;
+  margin-top: 0.2cm;
+}
+
+.footer {
+  margin-top: 2cm;
+  padding-top: 0.5cm;
+  border-top: 1px solid var(--gray-300);
+  font-size: 10pt;
+  color: var(--gray-500);
+  text-align: center;
+}
+
+@media print {
+  .print-button {
+    display: none;
+  }
+}
