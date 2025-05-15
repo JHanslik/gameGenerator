@@ -1,143 +1,5 @@
 {% extends 'base.html' %} {% load static %} {% load custom_filters %} {% block title %}{{ game.title }} | GameForge{% endblock %} {% block extra_css %}
-<style>
-  .generation-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s, visibility 0.3s;
-    overflow: hidden;
-  }
-
-  .generation-overlay.active {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .particles-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    overflow: hidden;
-  }
-
-  .particle {
-    position: absolute;
-    border-radius: 50%;
-    opacity: 0.7;
-    animation: float 3s linear infinite;
-    box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.5);
-  }
-
-  @keyframes float {
-    0% {
-      transform: translateY(0) translateX(0) scale(1);
-      opacity: 0;
-    }
-    10% {
-      opacity: 0.7;
-    }
-    90% {
-      opacity: 0.7;
-    }
-    100% {
-      transform: translateY(-100px) translateX(var(--translateX, 30px)) scale(0);
-      opacity: 0;
-    }
-  }
-
-  .spinner {
-    border: 5px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top: 5px solid #fff;
-    width: 70px;
-    height: 70px;
-    animation: spin 1s linear infinite;
-    margin-bottom: 20px;
-  }
-
-  .progress-bar {
-    width: 300px;
-    height: 10px;
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 5px;
-    overflow: hidden;
-    margin-bottom: 15px;
-  }
-
-  .progress-bar-inner {
-    height: 100%;
-    width: 0%;
-    background-color: #0ea5e9;
-    transition: width 0.5s ease;
-  }
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-
-  .generation-message {
-    color: white;
-    text-align: center;
-    max-width: 400px;
-    font-size: 1.1rem;
-    margin-bottom: 10px;
-  }
-
-  .generation-status {
-    color: #38bdf8;
-    font-size: 0.9rem;
-    margin-bottom: 30px;
-  }
-
-  .creative-suggestion {
-    color: #a5f3fc;
-    text-align: center;
-    max-width: 450px;
-    font-size: 0.95rem;
-    font-style: italic;
-    padding: 15px;
-    border-radius: 8px;
-    background-color: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(4px);
-    opacity: 0;
-    transition: opacity 0.5s ease;
-  }
-
-  /* Animation pour faire pulser la couleur de fond des suggestions */
-  @keyframes pulse {
-    0% {
-      background-color: rgba(14, 165, 233, 0.05);
-    }
-    50% {
-      background-color: rgba(14, 165, 233, 0.15);
-    }
-    100% {
-      background-color: rgba(14, 165, 233, 0.05);
-    }
-  }
-
-  .creative-suggestion {
-    animation: pulse 3s infinite ease-in-out;
-  }
-</style>
+<link rel="stylesheet" href="{% static 'css/generation-animation.css' %}" />
 {% endblock %} {% block content %}
 <div class="max-w-4xl mx-auto">
   <div class="mb-6 flex items-center">
@@ -224,7 +86,7 @@
     </div>
 
     <!-- Overlay d'animation pour la génération -->
-    <div id="generation-overlay" class="generation-overlay">
+    <div id="generation-overlay" class="generation-overlay" data-game-id="{{ game.id }}">
       <div class="particles-container"></div>
       <div class="spinner"></div>
       <div class="progress-bar" style="display: none">
@@ -232,126 +94,8 @@
       </div>
       <div id="generation-message" class="generation-message">Génération de l'univers de jeu en cours...</div>
       <div id="generation-status" class="generation-status">Merci de patienter quelques instants</div>
-
       <div id="creative-suggestion" class="creative-suggestion"></div>
     </div>
-
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const checkbox = document.getElementById("with_images");
-        const generateBtn = document.getElementById("generate-btn");
-        const overlay = document.getElementById("generation-overlay");
-        const generationMessage = document.getElementById("generation-message");
-        const generationStatus = document.getElementById("generation-status");
-        const creativeSuggestionElement = document.getElementById("creative-suggestion");
-
-        // Masquer la barre de progression
-        document.querySelector(".progress-bar").style.display = "none";
-
-        let withImages = checkbox.checked ? "true" : "false";
-
-        checkbox.addEventListener("change", function () {
-          withImages = this.checked ? "true" : "false";
-        });
-
-        // Création des particules (conserver cette partie qui est visuellement agréable)
-        const particlesContainer = document.querySelector(".particles-container");
-        const particleCount = 30; // Nombre de particules
-
-        for (let i = 0; i < particleCount; i++) {
-          createParticle(particlesContainer);
-        }
-
-        function createParticle(container) {
-          const particle = document.createElement("div");
-          particle.classList.add("particle");
-
-          // Position aléatoire
-          const posX = Math.random() * 100;
-          const posY = Math.random() * 100;
-
-          // Taille aléatoire
-          const size = Math.random() * 6 + 2;
-
-          // Durée aléatoire
-          const duration = Math.random() * 3 + 2;
-
-          // Direction aléatoire
-          const translateX = (Math.random() - 0.5) * 100;
-
-          // Couleur aléatoire
-          const colors = ["#38bdf8", "#60a5fa", "#a5f3fc", "#7dd3fc", "#e0f2fe"];
-          const color = colors[Math.floor(Math.random() * colors.length)];
-
-          // Appliquer les styles
-          particle.style.left = `${posX}%`;
-          particle.style.top = `${posY}%`;
-          particle.style.width = `${size}px`;
-          particle.style.height = `${size}px`;
-          particle.style.background = color;
-          particle.style.animationDuration = `${duration}s`;
-          particle.style.setProperty("--translateX", `${translateX}px`);
-
-          container.appendChild(particle);
-
-          // Relancer la particule après son animation
-          setTimeout(() => {
-            particle.remove();
-            createParticle(container);
-          }, duration * 1000);
-        }
-
-        // Liste de suggestions créatives à afficher pendant la génération
-        const creativeSuggestions = [
-          "Pensez à intégrer un arc narratif inattendu dans votre histoire...",
-          "Un bon antagoniste a souvent des motivations compréhensibles...",
-          "Les meilleurs jeux combinent familiarité et innovation...",
-          "Considérez comment l'environnement influence le gameplay...",
-          "Un système de progression bien pensé garde les joueurs engagés...",
-          "Les personnages mémorables ont souvent des faiblesses marquées...",
-          "Le worldbuilding se fait par petites touches, pas seulement par exposition...",
-          "Pensez aux émotions que vous souhaitez provoquer chez le joueur...",
-          "Un bon level design guide subtilement le joueur sans qu'il s'en aperçoive...",
-          "La musique et l'ambiance sonore sont essentielles à l'immersion...",
-          "L'équilibre entre défi et récompense est crucial pour l'expérience de jeu...",
-          "Les meilleurs jeux permettent plusieurs façons d'atteindre un objectif...",
-          "Le rythme du jeu devrait alterner entre tension et détente...",
-          "N'oubliez pas que les mécaniques de jeu doivent servir l'histoire, et inversement...",
-          "Les petits détails environnementaux enrichissent considérablement l'univers...",
-          "Un système de combat satisfaisant est souvent simple à comprendre mais difficile à maîtriser...",
-        ];
-
-        // Fonction pour afficher une nouvelle suggestion créative
-        const showNewSuggestion = function () {
-          creativeSuggestionElement.style.opacity = 0;
-
-          setTimeout(function () {
-            const suggestionIndex = Math.floor(Math.random() * creativeSuggestions.length);
-            creativeSuggestionElement.textContent = creativeSuggestions[suggestionIndex];
-            creativeSuggestionElement.style.opacity = 1;
-          }, 500);
-        };
-
-        generateBtn.addEventListener("click", function () {
-          // Activer l'overlay
-          overlay.classList.add("active");
-
-          // Définir un message simple
-          generationMessage.textContent = "Génération de l'univers de jeu en cours...";
-          generationStatus.textContent = "Merci de patienter quelques instants";
-
-          // Démarrer les suggestions créatives
-          showNewSuggestion();
-          const suggestionInterval = setInterval(showNewSuggestion, 5000);
-
-          // Simuler un délai avant la redirection
-          setTimeout(function () {
-            // Redirection après un délai
-            window.location.href = "{% url 'generator:generate_game_content' game_id=game.id %}?with_images=" + withImages;
-          }, 3000); // 3 secondes de délai pour voir l'animation
-        });
-      });
-    </script>
     {% endif %}
   </div>
 
@@ -484,4 +228,7 @@
     {% endif %} {% endif %}
   </div>
 </div>
+{% endblock %} {% block extra_js %}
+<script src="{% static 'js/tabs.js' %}"></script>
+<script src="{% static 'js/generation-animation.js' %}"></script>
 {% endblock %}
