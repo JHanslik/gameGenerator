@@ -6,6 +6,7 @@
 // Rendre les fonctions accessibles globalement pour la page d'accueil
 let showNewSuggestion;
 let initParticles;
+let initDanceVideo;
 
 document.addEventListener("DOMContentLoaded", function () {
   // Récupération des éléments du DOM
@@ -28,6 +29,69 @@ document.addEventListener("DOMContentLoaded", function () {
       withImages = this.checked ? "true" : "false";
     });
   }
+
+  // Fonction pour initialiser la fonctionnalité de vidéo de danse (disponible globalement)
+  initDanceVideo = function () {
+    console.log("Initialisation de la vidéo de danse");
+    // On utilise setTimeout pour s'assurer que tous les éléments sont bien chargés
+    setTimeout(() => {
+      const danceButton = document.getElementById("dance-video-button");
+      const videoContainer = document.getElementById("video-container");
+      const youtubeIframe = document.getElementById("youtube-iframe");
+      const closeVideoBtn = document.getElementById("close-video");
+
+      console.log("Éléments de danse:", { danceButton, videoContainer, youtubeIframe, closeVideoBtn });
+
+      if (danceButton && videoContainer && youtubeIframe) {
+        // Vérifier si l'événement est déjà attaché
+        if (!danceButton.hasAttribute("data-initialized")) {
+          danceButton.setAttribute("data-initialized", "true");
+
+          // Animation légère du bouton pour attirer l'attention
+          const animationInterval = setInterval(() => {
+            if (danceButton.querySelector("span")) {
+              danceButton.querySelector("span").innerHTML =
+                danceButton.querySelector("span").innerHTML === "Voulez-vous danser en attendant ? 💃🕺"
+                  ? "Cliquez pour vous amuser en attendant ! 🎵🎶"
+                  : "Voulez-vous danser en attendant ? 💃🕺";
+            } else {
+              clearInterval(animationInterval);
+            }
+          }, 3000);
+
+          // Afficher la vidéo quand on clique sur le bouton
+          danceButton.addEventListener("click", function (e) {
+            console.log("Bouton de danse cliqué");
+            e.preventDefault();
+
+            const danceLink = document.getElementById("dance-link");
+            if (danceLink) {
+              // Cacher le bouton
+              danceLink.style.display = "none";
+
+              // Charger et afficher la vidéo
+              youtubeIframe.src = "https://www.youtube.com/embed/m4GbBEEyYtQ?autoplay=1";
+              videoContainer.classList.remove("hidden");
+            }
+          });
+
+          // Fermer la vidéo
+          if (closeVideoBtn) {
+            closeVideoBtn.addEventListener("click", function () {
+              console.log("Bouton de fermeture cliqué");
+              youtubeIframe.src = "";
+              videoContainer.classList.add("hidden");
+
+              const danceLink = document.getElementById("dance-link");
+              if (danceLink) {
+                danceLink.style.display = "block";
+              }
+            });
+          }
+        }
+      }
+    }, 100); // Petit délai pour s'assurer que le DOM est prêt
+  };
 
   // Fonction pour initialiser les particules (disponible globalement)
   initParticles = function (container) {
@@ -117,6 +181,9 @@ document.addEventListener("DOMContentLoaded", function () {
     initParticles(particlesContainer);
   }
 
+  // N'initialisons pas automatiquement la vidéo ici, les templates s'en chargeront explicitement
+  // initDanceVideo();
+
   // Page de détail du jeu uniquement - si le bouton de génération existe
   if (generateBtn && overlay) {
     // Ajouter l'événement au bouton
@@ -135,6 +202,9 @@ document.addEventListener("DOMContentLoaded", function () {
       if (generationStatus) {
         generationStatus.textContent = "Merci de patienter quelques instants";
       }
+
+      // Initialiser la fonctionnalité de vidéo de danse
+      initDanceVideo();
 
       // Démarrer les suggestions créatives
       showNewSuggestion();

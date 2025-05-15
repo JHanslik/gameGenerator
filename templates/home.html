@@ -73,41 +73,6 @@
     const randomGameBtn = document.getElementById("random-game-btn");
     const overlay = document.getElementById("generation-overlay");
 
-    // Gestion du bouton pour danser pendant l'attente
-    const danceButton = document.getElementById("dance-video-button");
-    const videoContainer = document.getElementById("video-container");
-    const youtubeIframe = document.getElementById("youtube-iframe");
-    const closeVideoBtn = document.getElementById("close-video");
-
-    if (danceButton && videoContainer && youtubeIframe) {
-      // Animation légère du bouton pour attirer l'attention
-      setInterval(() => {
-        danceButton.querySelector("span").innerHTML =
-          danceButton.querySelector("span").innerHTML === "Voulez-vous danser en attendant ? 💃🕺"
-            ? "Cliquez pour vous amuser en attendant ! 🎵🎶"
-            : "Voulez-vous danser en attendant ? 💃🕺";
-      }, 3000);
-
-      // Afficher la vidéo quand on clique sur le bouton
-      danceButton.addEventListener("click", function (e) {
-        e.preventDefault();
-        // Cacher le bouton
-        document.getElementById("dance-link").style.display = "none";
-        // Charger et afficher la vidéo
-        youtubeIframe.src = "https://www.youtube.com/embed/m4GbBEEyYtQ?autoplay=1";
-        videoContainer.classList.remove("hidden");
-      });
-
-      // Fermer la vidéo
-      if (closeVideoBtn) {
-        closeVideoBtn.addEventListener("click", function () {
-          youtubeIframe.src = "";
-          videoContainer.classList.add("hidden");
-          document.getElementById("dance-link").style.display = "block";
-        });
-      }
-    }
-
     if (randomGameBtn && overlay) {
       randomGameBtn.addEventListener("click", function (e) {
         e.preventDefault();
@@ -121,6 +86,11 @@
           if (particlesContainer) {
             initParticles(particlesContainer);
           }
+        }
+
+        // Initialiser la fonctionnalité de vidéo de danse
+        if (typeof initDanceVideo === "function") {
+          initDanceVideo();
         }
 
         // Démarrer les suggestions créatives
