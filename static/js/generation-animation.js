@@ -3,25 +3,24 @@
  * Gère les animations, particules et suggestions pendant le processus de génération
  */
 
+// Rendre les fonctions accessibles globalement pour la page d'accueil
+let showNewSuggestion;
+let initParticles;
+
 document.addEventListener("DOMContentLoaded", function () {
   // Récupération des éléments du DOM
   const checkbox = document.getElementById("with_images");
   const generateBtn = document.getElementById("generate-btn");
   const overlay = document.getElementById("generation-overlay");
-
-  // Si aucun bouton de génération n'est trouvé, ne pas initialiser
-  if (!generateBtn || !overlay) return;
-
-  const generationMessage = document.getElementById("generation-message");
-  const generationStatus = document.getElementById("generation-status");
   const creativeSuggestionElement = document.getElementById("creative-suggestion");
 
-  // Masquer la barre de progression
+  // Masquer la barre de progression s'il y en a une
   const progressBar = document.querySelector(".progress-bar");
   if (progressBar) {
     progressBar.style.display = "none";
   }
 
+  // Initialiser les variables pour la génération
   let withImages = checkbox?.checked ? "true" : "false";
 
   if (checkbox) {
@@ -30,15 +29,15 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Création des particules
-  const particlesContainer = document.querySelector(".particles-container");
-  if (particlesContainer) {
-    const particleCount = 30; // Nombre de particules
+  // Fonction pour initialiser les particules (disponible globalement)
+  initParticles = function (container) {
+    if (!container) return;
 
+    const particleCount = 30; // Nombre de particules
     for (let i = 0; i < particleCount; i++) {
-      createParticle(particlesContainer);
+      createParticle(container);
     }
-  }
+  };
 
   function createParticle(container) {
     const particle = document.createElement("div");
@@ -99,8 +98,8 @@ document.addEventListener("DOMContentLoaded", function () {
     "Un système de combat satisfaisant est souvent simple à comprendre mais difficile à maîtriser...",
   ];
 
-  // Fonction pour afficher une nouvelle suggestion créative
-  function showNewSuggestion() {
+  // Fonction pour afficher une nouvelle suggestion créative (disponible globalement)
+  showNewSuggestion = function () {
     if (!creativeSuggestionElement) return;
 
     creativeSuggestionElement.style.opacity = 0;
@@ -110,34 +109,46 @@ document.addEventListener("DOMContentLoaded", function () {
       creativeSuggestionElement.textContent = creativeSuggestions[suggestionIndex];
       creativeSuggestionElement.style.opacity = 1;
     }, 500);
+  };
+
+  // Initialiser les particules pour n'importe quelle page contenant un overlay
+  const particlesContainer = document.querySelector(".particles-container");
+  if (particlesContainer) {
+    initParticles(particlesContainer);
   }
 
-  // Ajouter l'événement au bouton
-  generateBtn.addEventListener("click", function () {
-    // Activer l'overlay
-    overlay.classList.add("active");
+  // Page de détail du jeu uniquement - si le bouton de génération existe
+  if (generateBtn && overlay) {
+    // Ajouter l'événement au bouton
+    generateBtn.addEventListener("click", function () {
+      // Activer l'overlay
+      overlay.classList.add("active");
 
-    // Définir un message simple
-    if (generationMessage) {
-      generationMessage.textContent = "Génération de l'univers de jeu en cours...";
-    }
+      const generationMessage = document.getElementById("generation-message");
+      const generationStatus = document.getElementById("generation-status");
 
-    if (generationStatus) {
-      generationStatus.textContent = "Merci de patienter quelques instants";
-    }
+      // Définir un message simple
+      if (generationMessage) {
+        generationMessage.textContent = "Génération de l'univers de jeu en cours...";
+      }
 
-    // Démarrer les suggestions créatives
-    showNewSuggestion();
-    const suggestionInterval = setInterval(showNewSuggestion, 5000);
+      if (generationStatus) {
+        generationStatus.textContent = "Merci de patienter quelques instants";
+      }
 
-    // Simuler un délai avant la redirection
-    setTimeout(function () {
-      // Obtenir l'ID du jeu à partir des attributs data
-      const gameId = overlay.dataset.gameId || (window.location.pathname.match(/\/games\/([^\/]+)\//) || [])[1];
+      // Démarrer les suggestions créatives
+      showNewSuggestion();
+      const suggestionInterval = setInterval(showNewSuggestion, 5000);
 
-      // Redirection après un délai
-      const redirectUrl = `/generator/game/${gameId}/generate/?with_images=${withImages}`;
-      window.location.href = redirectUrl;
-    }, 3000); // 3 secondes de délai pour voir l'animation
-  });
+      // Simuler un délai avant la redirection
+      setTimeout(function () {
+        // Obtenir l'ID du jeu à partir des attributs data
+        const gameId = overlay.dataset.gameId || (window.location.pathname.match(/\/games\/([^\/]+)\//) || [])[1];
+
+        // Redirection après un délai
+        const redirectUrl = `/generator/game/${gameId}/generate/?with_images=${withImages}`;
+        window.location.href = redirectUrl;
+      }, 3000); // 3 secondes de délai pour voir l'animation
+    });
+  }
 });

@@ -1,4 +1,6 @@
-{% extends 'base.html' %} {% block title %}GameForge - Générateur de jeux vidéo par IA{% endblock %} {% block content %}
+{% extends 'base.html' %} {% load static %} {% block title %}GameForge - Générateur de jeux vidéo par IA{% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/generation-animation.css' %}" />
+{% endblock %} {% block content %}
 <div class="text-center py-12">
   <h1 class="text-5xl font-bold mb-4 text-gray-800">GameForge</h1>
   <p class="text-xl mb-12 text-gray-600 max-w-3xl mx-auto">Créez des concepts de jeux vidéo uniques en quelques clics grâce à l'intelligence artificielle</p>
@@ -17,7 +19,11 @@
       <div class="text-5xl mb-4">✨</div>
       <h2 class="text-2xl font-semibold mb-4">Exploration aléatoire</h2>
       <p class="mb-6 text-gray-600">Laissez l'IA vous surprendre avec un concept de jeu totalement inattendu.</p>
-      <a href="{% url 'games:random_game_create' %}" class="block w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition">
+      <a
+        id="random-game-btn"
+        href="javascript:void(0)"
+        class="block w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition"
+      >
         Générer aléatoirement
       </a>
     </div>
@@ -34,4 +40,52 @@
     </a>
   </div>
 </div>
+
+<!-- Overlay d'animation pour la génération aléatoire -->
+<div id="generation-overlay" class="generation-overlay">
+  <div class="particles-container"></div>
+  <div class="spinner"></div>
+  <div id="generation-message" class="generation-message">Génération d'un concept de jeu aléatoire...</div>
+  <div id="generation-status" class="generation-status">Laissez-vous surprendre par l'IA</div>
+  <div id="creative-suggestion" class="creative-suggestion"></div>
+</div>
+{% endblock %} {% block extra_js %}
+<script src="{% static 'js/generation-animation.js' %}"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const randomGameBtn = document.getElementById("random-game-btn");
+    const overlay = document.getElementById("generation-overlay");
+
+    if (randomGameBtn && overlay) {
+      randomGameBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        // Afficher l'overlay d'animation
+        overlay.classList.add("active");
+
+        // S'assurer que les particules sont initialisées (au cas où)
+        if (typeof initParticles === "function") {
+          const particlesContainer = overlay.querySelector(".particles-container");
+          if (particlesContainer) {
+            initParticles(particlesContainer);
+          }
+        }
+
+        // Démarrer les suggestions créatives
+        if (typeof showNewSuggestion === "function") {
+          showNewSuggestion();
+          const suggestionInterval = setInterval(showNewSuggestion, 5000);
+
+          // Nettoyer l'intervalle après redirection
+          setTimeout(() => clearInterval(suggestionInterval), 3000);
+        }
+
+        // Rediriger après un délai pour voir l'animation
+        setTimeout(function () {
+          window.location.href = "{% url 'games:random_game_create' %}";
+        }, 3000);
+      });
+    }
+  });
+</script>
 {% endblock %}
