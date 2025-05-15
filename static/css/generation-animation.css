@@ -21,6 +21,46 @@
   visibility: visible;
 }
 
+/* Style pour le lien de danse */
+#dance-link {
+  transform: scale(0.95);
+  opacity: 0;
+  transition: opacity 0.8s ease, transform 0.4s ease;
+}
+
+.generation-overlay.active #dance-link {
+  opacity: 1;
+  transform: scale(1);
+  transition-delay: 1s; /* Apparaît après un délai */
+}
+
+#dance-link:hover {
+  transform: scale(1.05);
+}
+
+/* Styles pour le conteneur vidéo */
+#video-container {
+  width: 80%;
+  max-width: 800px;
+  transition: all 0.3s ease;
+  z-index: 10000;
+}
+
+#youtube-iframe {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+}
+
+#close-video {
+  display: block;
+  margin: 10px auto;
+  transition: all 0.2s ease;
+}
+
+#close-video:hover {
+  transform: scale(1.05);
+}
+
 .particles-container {
   position: absolute;
   top: 0;

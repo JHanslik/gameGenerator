@@ -47,6 +47,23 @@
   <div class="spinner"></div>
   <div id="generation-message" class="generation-message">Génération d'un concept de jeu aléatoire...</div>
   <div id="generation-status" class="generation-status">Laissez-vous surprendre par l'IA</div>
+  <div id="dance-link" class="mt-4 mb-6 py-2 px-4 bg-purple-600 bg-opacity-50 hover:bg-opacity-70 rounded-full transition-all transform hover:scale-105">
+    <button class="text-white hover:text-pink-200 transition-colors font-medium flex items-center" id="dance-video-button">
+      <span>Voulez-vous danser en attendant ? 💃🕺</span>
+    </button>
+  </div>
+  <div id="video-container" class="w-full max-w-xl mt-4 hidden">
+    <div class="relative" style="padding-bottom: 56.25%">
+      <iframe
+        id="youtube-iframe"
+        class="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+      ></iframe>
+    </div>
+    <button id="close-video" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors">Fermer la vidéo</button>
+  </div>
   <div id="creative-suggestion" class="creative-suggestion"></div>
 </div>
 {% endblock %} {% block extra_js %}
@@ -55,6 +72,41 @@
   document.addEventListener("DOMContentLoaded", function () {
     const randomGameBtn = document.getElementById("random-game-btn");
     const overlay = document.getElementById("generation-overlay");
+
+    // Gestion du bouton pour danser pendant l'attente
+    const danceButton = document.getElementById("dance-video-button");
+    const videoContainer = document.getElementById("video-container");
+    const youtubeIframe = document.getElementById("youtube-iframe");
+    const closeVideoBtn = document.getElementById("close-video");
+
+    if (danceButton && videoContainer && youtubeIframe) {
+      // Animation légère du bouton pour attirer l'attention
+      setInterval(() => {
+        danceButton.querySelector("span").innerHTML =
+          danceButton.querySelector("span").innerHTML === "Voulez-vous danser en attendant ? 💃🕺"
+            ? "Cliquez pour vous amuser en attendant ! 🎵🎶"
+            : "Voulez-vous danser en attendant ? 💃🕺";
+      }, 3000);
+
+      // Afficher la vidéo quand on clique sur le bouton
+      danceButton.addEventListener("click", function (e) {
+        e.preventDefault();
+        // Cacher le bouton
+        document.getElementById("dance-link").style.display = "none";
+        // Charger et afficher la vidéo
+        youtubeIframe.src = "https://www.youtube.com/embed/m4GbBEEyYtQ?autoplay=1";
+        videoContainer.classList.remove("hidden");
+      });
+
+      // Fermer la vidéo
+      if (closeVideoBtn) {
+        closeVideoBtn.addEventListener("click", function () {
+          youtubeIframe.src = "";
+          videoContainer.classList.add("hidden");
+          document.getElementById("dance-link").style.display = "block";
+        });
+      }
+    }
 
     if (randomGameBtn && overlay) {
       randomGameBtn.addEventListener("click", function (e) {
@@ -77,13 +129,13 @@
           const suggestionInterval = setInterval(showNewSuggestion, 5000);
 
           // Nettoyer l'intervalle après redirection
-          setTimeout(() => clearInterval(suggestionInterval), 3000);
+          setTimeout(() => clearInterval(suggestionInterval), 8000);
         }
 
-        // Rediriger après un délai pour voir l'animation
+        // Rediriger après un délai pour voir l'animation et potentiellement regarder la vidéo
         setTimeout(function () {
           window.location.href = "{% url 'games:random_game_create' %}";
-        }, 3000);
+        }, 8000); // Délai augmenté à 8 secondes
       });
     }
   });
