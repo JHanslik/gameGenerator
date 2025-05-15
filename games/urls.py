@@ -12,4 +12,5 @@ urlpatterns = [
     path('<slug:slug>/', views.game_detail, name='game_detail'),
     path('<slug:slug>/favorite/', views.toggle_favorite, name='toggle_favorite'),
     path('<slug:slug>/toggle-public/', views.toggle_public, name='toggle_public'),
+    path('<slug:slug>/delete/', views.delete_game, name='delete_game'),
 ]

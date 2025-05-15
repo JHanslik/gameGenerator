@@ -185,3 +185,25 @@ def random_game_create(request):
     
     # Rediriger vers la génération de contenu
     return redirect('generator:generate_game_content', game_id=game.id)
+
+@login_required
+def delete_game(request, slug):
+    """Vue pour supprimer un jeu"""
+    game = get_object_or_404(Game, slug=slug)
+    
+    # Vérifier que l'utilisateur est bien le créateur du jeu
+    if game.creator != request.user:
+        messages.error(request, "Vous n'avez pas l'autorisation de supprimer ce jeu.")
+        return redirect('games:game_detail', slug=game.slug)
+    
+    # Stocker le titre du jeu pour le message de confirmation
+    game_title = game.title
+    
+    # Supprimer le jeu
+    game.delete()
+    
+    # Message de confirmation
+    messages.success(request, f"Le jeu '{game_title}' a été supprimé avec succès.")
+    
+    # Rediriger vers le tableau de bord
+    return redirect('users:dashboard')
