@@ -3,6 +3,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm, LoginForm
+from games.models import Favorite
 
 # Create your views here.
 
@@ -61,5 +62,19 @@ def profile_view(request):
 @login_required
 def dashboard_view(request):
     """Vue pour le tableau de bord utilisateur"""
+    # Récupérer tous les jeux de l'utilisateur
     user_games = request.user.games.all()
-    return render(request, 'users/dashboard.html', {'games': user_games})
+    
+    # Récupérer les favoris de l'utilisateur
+    favorites = Favorite.objects.filter(user=request.user)
+    
+    # Compter les jeux publics de l'utilisateur
+    public_games_count = user_games.filter(is_public=True).count()
+    
+    context = {
+        'games': user_games,
+        'favorites': favorites,
+        'public_games_count': public_games_count
+    }
+    
+    return render(request, 'users/dashboard.html', context)

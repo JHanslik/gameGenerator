@@ -42,7 +42,6 @@
           <a href="/" class="hover:text-blue-200 transition">Accueil</a>
           {% if user.is_authenticated %}
           <a href="{% url 'users:dashboard' %}" class="hover:text-blue-200 transition">Tableau de bord</a>
-          <a href="{% url 'games:my_games' %}" class="hover:text-blue-200 transition">Mes jeux</a>
           <a href="{% url 'games:favorites' %}" class="hover:text-blue-200 transition">Favoris</a>
           <a href="{% url 'users:profile' %}" class="hover:text-blue-200 transition">Profil</a>
           <a href="{% url 'users:logout' %}" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md transition">Déconnexion</a>
@@ -54,7 +53,7 @@
       </nav>
     </header>
 
-    <main class="container mx-auto px-4 py-8 flex-grow">
+    <main class="container mx-auto px-4 md:px-20 py-8 flex-grow">
       {% if messages %}
       <div class="mb-8">
         {% for message in messages %}
@@ -76,9 +75,9 @@
             <p class="text-gray-400">Générateur de concepts de jeux vidéo par IA</p>
           </div>
           <div class="flex space-x-6">
-            <a href="#" class="hover:text-blue-300 transition">À propos</a>
-            <a href="#" class="hover:text-blue-300 transition">Politique de confidentialité</a>
-            <a href="#" class="hover:text-blue-300 transition">Contact</a>
+            <a href="{% url 'users:dashboard' %}" class="hover:text-blue-300 transition">Tableau de bord</a>
+            <a href="{% url 'games:game_list' %}" class="hover:text-blue-300 transition">Explorer les jeux</a>
+            <a href="{% url 'users:profile' %}" class="hover:text-blue-300 transition">Mon profil</a>
           </div>
         </div>
         <div class="mt-6 pt-6 border-t border-gray-700 text-center text-gray-400">

@@ -16,9 +16,8 @@ def game_list(request):
 
 @login_required
 def my_games(request):
-    """Vue pour afficher les jeux créés par l'utilisateur"""
-    games = Game.objects.filter(creator=request.user).order_by('-created_at')
-    return render(request, 'games/my_games.html', {'games': games})
+    """Vue pour afficher les jeux de l'utilisateur - redirige vers le tableau de bord"""
+    return redirect('users:dashboard')
 
 @login_required
 def game_create(request):
