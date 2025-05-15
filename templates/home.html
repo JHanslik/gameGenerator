@@ -8,14 +8,18 @@
       <div class="text-5xl mb-4">🎲</div>
       <h2 class="text-2xl font-semibold mb-4">Création guidée</h2>
       <p class="mb-6 text-gray-600">Définissez le genre, l'ambiance et les thèmes de votre jeu pour obtenir un concept personnalisé.</p>
-      <a href="#" class="block w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"> Créer un jeu </a>
+      <a href="{% url 'games:game_create' %}" class="block w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition">
+        Créer un jeu
+      </a>
     </div>
 
     <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
       <div class="text-5xl mb-4">✨</div>
       <h2 class="text-2xl font-semibold mb-4">Exploration aléatoire</h2>
       <p class="mb-6 text-gray-600">Laissez l'IA vous surprendre avec un concept de jeu totalement inattendu.</p>
-      <a href="#" class="block w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition"> Générer aléatoirement </a>
+      <a href="{% url 'games:random_game_create' %}" class="block w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition">
+        Générer aléatoirement
+      </a>
     </div>
   </div>
 
@@ -23,7 +27,7 @@
     <h2 class="text-2xl font-semibold mb-4">Explorez les créations de la communauté</h2>
     <p class="mb-6 text-gray-700">Découvrez les jeux générés par d'autres utilisateurs pour vous inspirer.</p>
     <a
-      href="#"
+      href="{% url 'games:game_list' %}"
       class="inline-block bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-8 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition"
     >
       Voir les jeux publics
