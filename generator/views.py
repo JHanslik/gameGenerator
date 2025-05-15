@@ -1,19 +1,17 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
 from django.utils import timezone
 from django.core.files.base import ContentFile
-from django.template.loader import render_to_string, get_template
+from django.template.loader import get_template
 from django.conf import settings
 from django.contrib.staticfiles import finders
 from games.models import Game, GameDetail, Character, Location, GameImage
-from .models import GenerationRequest, AIModel
+from .models import GenerationRequest
 from .services import HuggingFaceService
-import tempfile
 import os
 import re
-from pathlib import Path
 from io import BytesIO
 
 # Create your views here.

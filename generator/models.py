@@ -22,19 +22,3 @@ class GenerationRequest(models.Model):
     
     def __str__(self):
         return f"Génération {self.id} par {self.user.username} ({self.status})"
-
-class AIModel(models.Model):
-    """Modèles d'IA disponibles pour la génération"""
-    TASK_CHOICES = [
-        ('text', 'Génération de texte'),
-        ('image', "Génération d'image"),
-    ]
-    
-    name = models.CharField(max_length=100)
-    model_id = models.CharField(max_length=100)  # ID du modèle sur Hugging Face
-    task = models.CharField(max_length=20, choices=TASK_CHOICES)
-    description = models.TextField()
-    is_active = models.BooleanField(default=True)
-    
-    def __str__(self):
-        return f"{self.name} ({self.get_task_display()})"
