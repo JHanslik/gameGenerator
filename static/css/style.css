@@ -1,0 +1,77 @@
+/* Styles globaux pour GameForge */
+
+/* Animations de base */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Personnalisation des formulaires */
+.form-input:focus-visible {
+  outline: none;
+}
+
+/* Styles personnalisés pour les boutons */
+.btn-hover-effect {
+  transition: all 0.3s ease;
+}
+
+.btn-hover-effect:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Effet de survol sur les cartes */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Effet de transition pour les liens */
+a {
+  transition: all 0.2s ease;
+}
+
+/* Spinner pour les chargements */
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Classes d'utilité pour les espacements et ombres */
+.shadow-hover {
+  transition: box-shadow 0.3s ease;
+}
+
+.shadow-hover:hover {
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Classes d'animation pour les notifications */
+.alert-animation {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Styles responsifs personnalisés */
+@media (max-width: 640px) {
+  .container-mobile {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}

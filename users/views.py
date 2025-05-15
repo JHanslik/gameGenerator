@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, UserUpdateForm, ProfileUpdateForm
 from games.models import Favorite
 
 # Create your views here.
@@ -56,8 +56,31 @@ def logout_view(request):
 
 @login_required
 def profile_view(request):
-    """Vue pour afficher et modifier le profil utilisateur"""
+    """Vue pour afficher le profil utilisateur"""
     return render(request, 'users/profile.html')
+
+@login_required
+def account_settings_view(request):
+    """Vue pour modifier les paramètres du compte utilisateur"""
+    if request.method == 'POST':
+        user_form = UserUpdateForm(request.POST, instance=request.user)
+        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, "Votre profil a été mis à jour avec succès !")
+            return redirect('users:profile')
+    else:
+        user_form = UserUpdateForm(instance=request.user)
+        profile_form = ProfileUpdateForm(instance=request.user.profile)
+    
+    context = {
+        'user_form': user_form,
+        'profile_form': profile_form
+    }
+    
+    return render(request, 'users/account_settings.html', context)
 
 @login_required
 def dashboard_view(request):

@@ -1,0 +1,110 @@
+{% extends 'base.html' %} {% load static %} {% block title %}Paramètres du compte | GameForge{% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/account_settings.css' %}" />
+{% endblock %} {% block content %}
+<div class="bg-white rounded-xl shadow-md p-6 mb-8">
+  <h1 class="text-2xl font-bold mb-6">Paramètres du compte</h1>
+
+  <div class="mb-6">
+    <a href="{% url 'users:profile' %}" class="text-blue-600 hover:text-blue-800 flex items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+        <path
+          fill-rule="evenodd"
+          d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      Retour au profil
+    </a>
+  </div>
+
+  <div class="bg-gray-50 rounded-lg p-4 mb-6">
+    <div class="flex items-center mb-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <p class="text-sm text-gray-600">Les modifications apportées à votre profil seront visibles par les autres utilisateurs.</p>
+    </div>
+  </div>
+
+  <form method="POST" enctype="multipart/form-data" class="account-settings-form">
+    {% csrf_token %}
+
+    <div class="grid md:grid-cols-2 gap-8">
+      <div>
+        <h2 class="text-lg font-semibold mb-4 pb-2 border-b">Informations personnelles</h2>
+
+        <div class="mb-4">
+          <label for="{{ user_form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Nom d'utilisateur</label>
+          {{ user_form.username }} {% if user_form.username.errors %}
+          <p class="mt-1 text-sm text-red-600">{{ user_form.username.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="mb-4">
+          <label for="{{ user_form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          {{ user_form.email }} {% if user_form.email.errors %}
+          <p class="mt-1 text-sm text-red-600">{{ user_form.email.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="mb-4">
+          <label for="{{ user_form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
+          {{ user_form.first_name }} {% if user_form.first_name.errors %}
+          <p class="mt-1 text-sm text-red-600">{{ user_form.first_name.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+
+        <div class="mb-4">
+          <label for="{{ user_form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+          {{ user_form.last_name }} {% if user_form.last_name.errors %}
+          <p class="mt-1 text-sm text-red-600">{{ user_form.last_name.errors|join:", " }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-lg font-semibold mb-4 pb-2 border-b">Profil</h2>
+
+        <div class="mb-4">
+          <label for="{{ profile_form.avatar.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Photo de profil</label>
+
+          <div class="flex items-start mb-2">
+            {% if user.profile.avatar %}
+            <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="w-24 h-24 rounded-full object-cover mr-4" />
+            {% else %}
+            <div class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center mr-4">
+              <span class="text-3xl text-gray-400">{{ user.username|first|upper }}</span>
+            </div>
+            {% endif %}
+
+            <div class="upload-container">
+              {{ profile_form.avatar }} {% if profile_form.avatar.errors %}
+              <p class="mt-1 text-sm text-red-600">{{ profile_form.avatar.errors|join:", " }}</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="{{ profile_form.bio.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+          {{ profile_form.bio }} {% if profile_form.bio.errors %}
+          <p class="mt-1 text-sm text-red-600">{{ profile_form.bio.errors|join:", " }}</p>
+          {% endif %}
+          <p class="mt-1 text-sm text-gray-500">Parlez de vous en quelques mots (500 caractères max)</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-8 flex justify-end">
+      <button
+        type="submit"
+        class="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+      >
+        Enregistrer les modifications
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %} {% block extra_js %}
+<script src="{% static 'js/account_settings.js' %}"></script>
+{% endblock %}
